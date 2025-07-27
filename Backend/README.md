@@ -176,3 +176,98 @@ Authorization: Bearer <jwt_token>
 curl -X GET http://localhost:3000/users/logout \
 -H "Authorization: Bearer your_jwt_token"
 ```
+
+# Captain API Documentation
+
+## Captain Registration
+`POST /captains/register`
+
+Register a new captain in the system.
+
+### Request Body
+```json
+{
+    "fullname": {
+        "firstname": "string",
+        "lastname": "string"
+    },
+    "email": "string",
+    "password": "string",
+    "vehicle": {
+        "color": "string",
+        "plate": "string",
+        "capacity": "number",
+        "vehicleType": "car|bike|auto"
+    }
+}
+```
+
+### Required Fields
+- **fullname.firstname**: Captain's first name (min 3 characters)
+- **fullname.lastname**: Captain's last name (min 3 characters)
+- **email**: Valid email address
+- **password**: Password (min 8 characters)
+- **vehicle.color**: Vehicle color (min 3 characters)
+- **vehicle.plate**: Vehicle plate number (min 3 characters)
+- **vehicle.capacity**: Vehicle passenger capacity (min 1)
+- **vehicle.vehicleType**: Type of vehicle (must be 'car', 'bike', or 'auto')
+
+### Response Codes
+- **201**: Captain successfully registered
+- **400**: Bad request (missing or invalid data)
+- **409**: Conflict (email already exists)
+- **500**: Internal server error
+
+### Success Response
+```json
+{
+    "token": "jwt_token_string",
+    "captain": {
+        "_id": "string",
+        "fullname": {
+            "firstname": "string",
+            "lastname": "string"
+        },
+        "email": "string",
+        "vehicle": {
+            "color": "string",
+            "plate": "string",
+            "capacity": 4,
+            "vehicleType": "car"
+        },
+        "status": "inactive"
+    }
+}
+```
+
+### Error Response
+```json
+{
+    "errors": [
+        {
+            "msg": "Error message description",
+            "param": "field_name"
+        }
+    ]
+}
+```
+
+### Example Usage
+```bash
+curl -X POST http://localhost:3000/captains/register \
+-H "Content-Type: application/json" \
+-d '{
+    "fullname": {
+        "firstname": "John",
+        "lastname": "Doe"
+    },
+    "email": "john.captain@example.com",
+    "password": "password123",
+    "vehicle": {
+        "color": "Black",
+        "plate": "ABC123",
+        "capacity": 4,
+        "vehicleType": "car"
+    }
+}'
+```
