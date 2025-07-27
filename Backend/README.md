@@ -188,16 +188,16 @@ Register a new captain in the system.
 ```json
 {
     "fullname": {
-        "firstname": "string",
-        "lastname": "string"
+        "firstname": "string", // minimum 3 characters
+        "lastname": "string"   // optional, minimum 3 characters if provided
     },
-    "email": "string",
-    "password": "string",
+    "email": "string",        // must be unique and valid email format
+    "password": "string",     // minimum 8 characters
     "vehicle": {
-        "color": "string",
-        "plate": "string",
-        "capacity": "number",
-        "vehicleType": "car|bike|auto"
+        "color": "string",    // minimum 3 characters
+        "plate": "string",    // minimum 3 characters, unique
+        "capacity": 4,        // minimum 1
+        "vehicleType": "car"  // must be one of: "car", "bike", "auto"
     }
 }
 ```
@@ -218,24 +218,24 @@ Register a new captain in the system.
 - **409**: Conflict (email already exists)
 - **500**: Internal server error
 
-### Success Response
+### Success Response (201 Created)
 ```json
 {
-    "token": "jwt_token_string",
+    "token": "eyJhbGciOiJIUzI1NiIs...", // JWT token, valid for 24 hours
     "captain": {
-        "_id": "string",
+        "_id": "60f1a5b9e6c7b32d48a9f5c3",
         "fullname": {
-            "firstname": "string",
-            "lastname": "string"
+            "firstname": "John",
+            "lastname": "Doe"
         },
-        "email": "string",
+        "email": "john.captain@example.com",
         "vehicle": {
-            "color": "string",
-            "plate": "string",
+            "color": "Black",
+            "plate": "ABC123",
             "capacity": 4,
             "vehicleType": "car"
         },
-        "status": "inactive"
+        "status": "inactive"    // default status for new captains
     }
 }
 ```
@@ -271,3 +271,113 @@ curl -X POST http://localhost:3000/captains/register \
     }
 }'
 ```
+
+## Captain Login
+`POST /captains/login`
+
+Authenticate a captain and get access token.
+
+### Request Body
+```json
+{
+    "email": "string",    // registered email
+    "password": "string"  // minimum 8 characters
+}
+```
+
+### Success Response (200 OK)
+```json
+{
+    "token": "eyJhbGciOiJIUzI1NiIs...", // JWT token, valid for 24 hours
+    "captain": {
+        "_id": "60f1a5b9e6c7b32d48a9f5c3",
+        "fullname": {
+            "firstname": "John",
+            "lastname": "Doe"
+        },
+        "email": "john.captain@example.com",
+        "vehicle": {
+            "color": "Black",
+            "plate": "ABC123",
+            "capacity": 4,
+            "vehicleType": "car"
+        },
+        "status": "inactive"
+    }
+}
+```
+
+## Get Captain Profile
+`GET /captains/profile`
+
+Retrieve the authenticated captain's profile information.
+
+### Headers
+```json
+{
+    "Authorization": "Bearer eyJhbGciOiJIUzI1NiIs..." // Valid JWT token
+}
+```
+
+### Success Response (200 OK)
+```json
+{
+    "_id": "60f1a5b9e6c7b32d48a9f5c3",
+    "fullname": {
+        "firstname": "John",
+        "lastname": "Doe"
+    },
+    "email": "john.captain@example.com",
+    "vehicle": {
+        "color": "Black",
+        "plate": "ABC123",
+        "capacity": 4,
+        "vehicleType": "car"
+    },
+    "status": "inactive",
+    "location": {              // Optional, present if captain has shared location
+        "lat": 12.9716,
+        "lng": 77.5946
+    }
+}
+```
+
+## Captain Logout
+`GET /captains/logout`
+
+Logout the currently authenticated captain and invalidate the token.
+
+### Headers
+```json
+{
+    "Authorization": "Bearer eyJhbGciOiJIUzI1NiIs..." // Valid JWT token
+}
+```
+
+### Success Response (200 OK)
+```json
+{
+    "message": "Logged out successfully"
+}
+```
+
+### Error Responses (All Routes)
+```json
+{
+    "errors": [
+        {
+            "msg": "Error description",    // Validation or error message
+            "param": "field_name",         // Field causing the error (if applicable)
+            "location": "body"             // Location of the error (body, query, etc.)
+        }
+    ]
+}
+```
+
+### Status Codes
+- **200**: Success (Login, Profile, Logout)
+- **201**: Created (Registration)
+- **400**: Bad Request (Validation errors)
+- **401**: Unauthorized (Invalid/missing token, wrong credentials)
+- **409**: Conflict (Email/plate number already exists)
+- **500**: Internal Server Error
