@@ -60,3 +60,58 @@ curl -X POST http://localhost:3000/users/register \
     "phone": "1234567890"
 }'
 ```
+
+## User Login
+`POST /users/login`
+
+Authenticate an existing user and get access token.
+
+### Request Body
+```json
+{
+    "email": "string",
+    "password": "string"
+}
+```
+
+### Required Fields
+- **email**: Registered email address
+- **password**: User's password
+
+### Response Codes
+- **200**: Login successful
+- **400**: Bad request (missing or invalid data)
+- **401**: Unauthorized (invalid credentials)
+- **500**: Internal server error
+
+### Success Response
+```json
+{
+    "token": "jwt_token_string",
+    "user": {
+        "userId": "string",
+        "fullname": {
+            "firstname": "string",
+            "lastname": "string"
+        },
+        "email": "string"
+    }
+}
+```
+
+### Error Response
+```json
+{
+    "message": "Invalid email or password"
+}
+```
+
+### Example Usage
+```bash
+curl -X POST http://localhost:3000/users/login \
+-H "Content-Type: application/json" \
+-d '{
+    "email": "john@example.com",
+    "password": "password123"
+}'
+```
